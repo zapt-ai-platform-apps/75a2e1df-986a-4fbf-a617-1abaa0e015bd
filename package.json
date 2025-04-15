@@ -1,7 +1,7 @@
 {
-    "name": "reactjs-vite-tailwind-vercel",
+    "name": "contract-assistant",
     "version": "1.0.0",
-    "description": "ReactJS app with Vite, Tailwind",
+    "description": "UK Construction Contract Assistant",
     "type": "module",
     "scripts": {
         "dev": "vite",
@@ -11,8 +11,14 @@
     },
     "dependencies": {
         "@sentry/browser": "^8.41.0",
+        "file-saver": "^2.0.5",
+        "html2canvas": "^1.4.1",
+        "jspdf": "^2.5.1",
         "react": "^18.2.0",
-        "react-dom": "^18.2.0"
+        "react-dom": "^18.2.0",
+        "react-icons": "^4.11.0",
+        "react-router-dom": "^6.16.0",
+        "react-to-print": "^2.14.13"
     },
     "devDependencies": {
         "@vitejs/plugin-react": "^4.3.4",
