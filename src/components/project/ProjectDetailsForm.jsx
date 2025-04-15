@@ -5,7 +5,7 @@ import Button from '../common/Button';
 import { contractTypes } from '../../data/contractTypes';
 import { organizationRoles } from '../../data/organizationRoles';
 import IssueForm from './IssueForm';
-import { FaPlus, FaArrowRight } from 'react-icons/fa';
+import { FaPlus, FaArrowRight, FaSpinner } from 'react-icons/fa';
 
 export default function ProjectDetailsForm() {
   const { 
@@ -15,11 +15,11 @@ export default function ProjectDetailsForm() {
     updateIssue, 
     removeIssue,
     generateReport,
-    setShouldGenerateLetter 
+    setShouldGenerateLetter,
+    isGeneratingReport 
   } = useAppContext();
   
   const navigate = useNavigate();
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [validationErrors, setValidationErrors] = useState({});
   
   const handleChange = (e) => {
@@ -71,8 +71,6 @@ export default function ProjectDetailsForm() {
       return;
     }
     
-    setIsSubmitting(true);
-    
     try {
       // Reset the shouldGenerateLetter flag to trigger the prompt on report page
       setShouldGenerateLetter(null);
@@ -81,8 +79,6 @@ export default function ProjectDetailsForm() {
     } catch (error) {
       console.error('Error generating report:', error);
       alert('An error occurred while generating the report. Please try again.');
-    } finally {
-      setIsSubmitting(false);
     }
   };
   
@@ -218,13 +214,12 @@ export default function ProjectDetailsForm() {
           <div className="pt-6 border-t border-gray-200 mt-8 flex justify-end">
             <Button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isGeneratingReport}
               size="md"
               variant="primary"
-              icon={<FaArrowRight />}
-              className="text-gray-800 bg-gray-100 hover:bg-gray-200 border border-gray-300"
+              icon={isGeneratingReport ? <FaSpinner className="animate-spin" /> : <FaArrowRight />}
             >
-              {isSubmitting ? 'Generating Report...' : 'Generate Report'}
+              {isGeneratingReport ? 'Generating Report...' : 'Generate Report'}
             </Button>
           </div>
         </div>

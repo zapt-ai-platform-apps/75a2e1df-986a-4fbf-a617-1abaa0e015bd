@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useReactToPrint } from 'react-to-print';
 import { useAppContext } from '../../contexts/AppContext';
 import Button from '../common/Button';
-import { FaFilePdf, FaFile, FaPrint, FaCopy, FaSave, FaList, FaPen, FaArrowLeft, FaEye, FaRedo } from 'react-icons/fa';
+import { FaFilePdf, FaFile, FaPrint, FaCopy, FaSave, FaList, FaPen, FaArrowLeft, FaEye, FaRedo, FaSpinner } from 'react-icons/fa';
 import DraftCommunication from './DraftCommunication';
 import SavedReportsList from './SavedReportsList';
 import { exportToPDF, exportToWord } from '../../utils/exportUtils';
@@ -19,14 +19,15 @@ export default function ReportView() {
     generateReport,
     generateDraftCommunication,
     shouldGenerateLetter,
-    setShouldGenerateLetter
+    setShouldGenerateLetter,
+    isGeneratingReport,
+    isGeneratingLetter
   } = useAppContext();
   
   const navigate = useNavigate();
   const [showSavedReports, setShowSavedReports] = useState(false);
   const [selectedReport, setSelectedReport] = useState(null);
   const [showDraft, setShowDraft] = useState(false);
-  const [isGenerating, setIsGenerating] = useState(false);
   const [showLetterPrompt, setShowLetterPrompt] = useState(false);
   
   // Refs for printing
@@ -45,12 +46,12 @@ export default function ReportView() {
   }, [report, shouldGenerateLetter, setShouldGenerateLetter]);
 
   // Handle letter prompt response
-  const handleLetterPromptResponse = (wantsDraft) => {
+  const handleLetterPromptResponse = async (wantsDraft) => {
     setShouldGenerateLetter(wantsDraft);
     setShowLetterPrompt(false);
     
     if (wantsDraft) {
-      generateDraftCommunication(displayReport);
+      await generateDraftCommunication(displayReport);
       setShowDraft(true);
     }
   };
@@ -274,7 +275,6 @@ export default function ReportView() {
   
   // Generate a new report using the current project details
   const handleRegenerateReport = async () => {
-    setIsGenerating(true);
     try {
       await generateReport();
       setSelectedReport(null); // Switch back to the current report
@@ -283,13 +283,11 @@ export default function ReportView() {
     } catch (error) {
       console.error('Error regenerating report:', error);
       alert('An error occurred while regenerating the report. Please try again.');
-    } finally {
-      setIsGenerating(false);
     }
   };
 
   // Handle creating a draft letter
-  const handleCreateDraftLetter = () => {
+  const handleCreateDraftLetter = async () => {
     // If we're just toggling between views
     if (showDraft) {
       setShowDraft(false);
@@ -384,6 +382,7 @@ export default function ReportView() {
               variant="info"
               icon={<FaPen />}
               title="Create or View Draft Letter"
+              disabled={isGeneratingLetter}
             >
               Letter
             </Button>
@@ -429,14 +428,14 @@ export default function ReportView() {
             {selectedReport && (
               <Button
                 onClick={handleRegenerateReport}
-                disabled={isGenerating}
+                disabled={isGeneratingReport}
                 size="sm"
                 variant="success"
-                icon={<FaRedo />}
+                icon={isGeneratingReport ? <FaSpinner className="animate-spin" /> : <FaRedo />}
                 title="Generate New Report"
                 className="ml-auto"
               >
-                {isGenerating ? 'Generating...' : 'New Report'}
+                {isGeneratingReport ? 'Generating...' : 'New Report'}
               </Button>
             )}
           </div>
@@ -514,7 +513,7 @@ export default function ReportView() {
                     </ul>
                   </div>
 
-                  {analysis.clauseExplanations && (
+                  {analysis.clauseExplanations && analysis.clauseExplanations.length > 0 && (
                     <div className="mb-4">
                       <h5 className="text-md font-medium text-gray-700 mb-2">Clause Explanations:</h5>
                       <ul className="list-disc pl-5 space-y-1">
@@ -625,19 +624,19 @@ export default function ReportView() {
             size="sm"
             variant="primary"
             icon={<FaPen />}
+            disabled={isGeneratingLetter}
           >
             Create Draft Letter
           </Button>
         ) : (
           <Button
-            onClick={() => {
-              generateDraftCommunication(displayReport);
-            }}
+            onClick={() => generateDraftCommunication(displayReport)}
             size="sm"
             variant="primary"
-            icon={<FaRedo />}
+            icon={isGeneratingLetter ? <FaSpinner className="animate-spin" /> : <FaRedo />}
+            disabled={isGeneratingLetter}
           >
-            Refresh Draft Letter
+            {isGeneratingLetter ? 'Generating...' : 'Refresh Draft Letter'}
           </Button>
         )}
       </div>
