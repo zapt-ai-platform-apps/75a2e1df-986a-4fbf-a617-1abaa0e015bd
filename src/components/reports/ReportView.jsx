@@ -1,12 +1,13 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useReactToPrint } from 'react-to-print';
 import { useAppContext } from '../../contexts/AppContext';
 import Button from '../common/Button';
-import { FaFilePdf, FaFileCsv, FaPrint, FaCopy, FaFile, FaSave, FaList } from 'react-icons/fa';
+import { FaFilePdf, FaFileCsv, FaPrint, FaCopy, FaFile, FaSave, FaList, FaPen } from 'react-icons/fa';
 import DraftCommunication from './DraftCommunication';
 import SavedReportsList from './SavedReportsList';
 import { exportToPDF, exportToWord } from '../../utils/exportUtils';
+import DraftLetterPrompt from './DraftLetterPrompt';
 
 export default function ReportView() {
   const { 
@@ -16,7 +17,10 @@ export default function ReportView() {
     saveCurrentReport,
     deleteSavedReport,
     projectDetails,
-    generateReport
+    generateReport,
+    generateDraftCommunication,
+    shouldGenerateLetter,
+    setShouldGenerateLetter
   } = useAppContext();
   
   const navigate = useNavigate();
@@ -24,6 +28,7 @@ export default function ReportView() {
   const [selectedReport, setSelectedReport] = useState(null);
   const [showDraft, setShowDraft] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [showLetterPrompt, setShowLetterPrompt] = useState(false);
   
   // Refs for printing
   const reportRef = useRef();
@@ -31,6 +36,24 @@ export default function ReportView() {
   
   // Determine which report to display
   const displayReport = selectedReport || report;
+
+  // Check if we should show the letter prompt
+  useEffect(() => {
+    if (report && shouldGenerateLetter === null) {
+      setShowLetterPrompt(true);
+    }
+  }, [report, shouldGenerateLetter]);
+
+  // Handle letter prompt response
+  const handleLetterPromptResponse = (wantsDraft) => {
+    setShouldGenerateLetter(wantsDraft);
+    setShowLetterPrompt(false);
+    
+    if (wantsDraft) {
+      generateDraftCommunication(report);
+      setShowDraft(true);
+    }
+  };
   
   // If no reports and no selected report, redirect to project details
   if (!displayReport && !showSavedReports) {
@@ -96,14 +119,44 @@ export default function ReportView() {
     displayReport.analysis.forEach((analysis, index) => {
       content += `### Issue ${index + 1}: ${analysis.issue}\n\n`;
       content += `Actions Taken: ${analysis.actionsTaken || 'None'}\n\n`;
+      
+      if (analysis.detailedAnalysis) {
+        content += `#### Analysis:\n${analysis.detailedAnalysis}\n\n`;
+      }
+      
+      if (analysis.legalContext) {
+        content += `#### Legal Context:\n${analysis.legalContext}\n\n`;
+      }
+      
       content += `#### Relevant Contract Clauses:\n`;
       analysis.relevantClauses.forEach(clause => {
         content += `* ${clause}\n`;
       });
+      
+      if (analysis.clauseExplanations) {
+        content += `\n#### Clause Explanations:\n`;
+        analysis.clauseExplanations.forEach(explanation => {
+          content += `* ${explanation}\n`;
+        });
+      }
+      
       content += `\n#### Recommendations:\n`;
       analysis.recommendations.forEach(rec => {
         content += `* ${rec}\n`;
       });
+      
+      if (analysis.potentialOutcomes) {
+        content += `\n#### Potential Outcomes:\n${analysis.potentialOutcomes}\n\n`;
+      }
+      
+      if (analysis.timelineSuggestions) {
+        content += `\n#### Timeline Suggestions:\n${analysis.timelineSuggestions}\n\n`;
+      }
+      
+      if (analysis.riskAssessment) {
+        content += `\n#### Risk Assessment:\n${analysis.riskAssessment}\n\n`;
+      }
+      
       content += `\n`;
     });
     
@@ -141,14 +194,25 @@ export default function ReportView() {
     displayReport.analysis.forEach((analysis, index) => {
       content += `Issue ${index + 1}: ${analysis.issue}\n`;
       content += `Actions Taken: ${analysis.actionsTaken || 'None'}\n\n`;
+      
+      if (analysis.detailedAnalysis) {
+        content += `Analysis: ${analysis.detailedAnalysis}\n\n`;
+      }
+      
       content += `Relevant Contract Clauses:\n`;
       analysis.relevantClauses.forEach(clause => {
         content += `- ${clause}\n`;
       });
+      
       content += `\nRecommendations:\n`;
       analysis.recommendations.forEach(rec => {
         content += `- ${rec}\n`;
       });
+      
+      if (analysis.potentialOutcomes) {
+        content += `\nPotential Outcomes: ${analysis.potentialOutcomes}\n\n`;
+      }
+      
       content += `\n`;
     });
     
@@ -211,12 +275,21 @@ export default function ReportView() {
       await generateReport();
       setSelectedReport(null); // Switch back to the current report
       setShowDraft(false);
+      setShouldGenerateLetter(null); // Reset to trigger prompt again
     } catch (error) {
       console.error('Error regenerating report:', error);
       alert('An error occurred while regenerating the report. Please try again.');
     } finally {
       setIsGenerating(false);
     }
+  };
+
+  // Handle creating a draft letter when it wasn't initially created
+  const handleCreateDraftLetter = () => {
+    if (!draftCommunication && displayReport) {
+      generateDraftCommunication(displayReport);
+    }
+    setShowDraft(true);
   };
   
   if (showSavedReports) {
@@ -226,6 +299,14 @@ export default function ReportView() {
         onClose={() => setShowSavedReports(false)}
         onLoad={handleLoadReport}
         onDelete={handleDeleteReport}
+      />
+    );
+  }
+
+  if (showLetterPrompt) {
+    return (
+      <DraftLetterPrompt
+        onResponse={handleLetterPromptResponse}
       />
     );
   }
@@ -267,11 +348,11 @@ export default function ReportView() {
           
           {!showDraft && (
             <Button
-              onClick={() => setShowDraft(true)}
-              className="bg-indigo-600 hover:bg-indigo-700"
-              icon={<FaFile />}
+              onClick={handleCreateDraftLetter}
+              className="bg-indigo-600 hover:bg-indigo-700 text-white"
+              icon={<FaPen />}
             >
-              Show Draft Communication
+              {draftCommunication ? "Show Draft Letter" : "Create Draft Letter"}
             </Button>
           )}
           
@@ -381,6 +462,20 @@ export default function ReportView() {
                       <p className="text-gray-800">{analysis.actionsTaken}</p>
                     </div>
                   )}
+
+                  {analysis.detailedAnalysis && (
+                    <div className="mb-4">
+                      <h5 className="text-md font-medium text-gray-700 mb-2">Detailed Analysis:</h5>
+                      <p className="text-gray-800">{analysis.detailedAnalysis}</p>
+                    </div>
+                  )}
+
+                  {analysis.legalContext && (
+                    <div className="mb-4">
+                      <h5 className="text-md font-medium text-gray-700 mb-2">Legal Context:</h5>
+                      <p className="text-gray-800 whitespace-pre-line">{analysis.legalContext}</p>
+                    </div>
+                  )}
                   
                   <div className="mb-4">
                     <h5 className="text-md font-medium text-gray-700 mb-2">Relevant Contract Clauses:</h5>
@@ -390,8 +485,19 @@ export default function ReportView() {
                       ))}
                     </ul>
                   </div>
+
+                  {analysis.clauseExplanations && (
+                    <div className="mb-4">
+                      <h5 className="text-md font-medium text-gray-700 mb-2">Clause Explanations:</h5>
+                      <ul className="list-disc pl-5 space-y-1">
+                        {analysis.clauseExplanations.map((explanation, i) => (
+                          <li key={i} className="text-gray-800">{explanation}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                   
-                  <div>
+                  <div className="mb-4">
                     <h5 className="text-md font-medium text-gray-700 mb-2">Recommendations:</h5>
                     <ul className="list-disc pl-5 space-y-1">
                       {analysis.recommendations.map((recommendation, i) => (
@@ -399,6 +505,27 @@ export default function ReportView() {
                       ))}
                     </ul>
                   </div>
+
+                  {analysis.potentialOutcomes && (
+                    <div className="mb-4">
+                      <h5 className="text-md font-medium text-gray-700 mb-2">Potential Outcomes:</h5>
+                      <p className="text-gray-800 whitespace-pre-line">{analysis.potentialOutcomes}</p>
+                    </div>
+                  )}
+
+                  {analysis.timelineSuggestions && (
+                    <div className="mb-4">
+                      <h5 className="text-md font-medium text-gray-700 mb-2">Timeline Suggestions:</h5>
+                      <p className="text-gray-800 whitespace-pre-line">{analysis.timelineSuggestions}</p>
+                    </div>
+                  )}
+
+                  {analysis.riskAssessment && (
+                    <div>
+                      <h5 className="text-md font-medium text-gray-700 mb-2">Risk Assessment:</h5>
+                      <p className="text-gray-800 whitespace-pre-line">{analysis.riskAssessment}</p>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -460,6 +587,13 @@ export default function ReportView() {
           className="bg-gray-600 hover:bg-gray-700"
         >
           Back to Project Details
+        </Button>
+
+        <Button
+          onClick={handleCreateDraftLetter}
+          className="bg-blue-600 hover:bg-blue-700 text-white"
+        >
+          {showDraft ? "Refresh Draft Letter" : "Create Draft Letter"}
         </Button>
       </div>
     </div>

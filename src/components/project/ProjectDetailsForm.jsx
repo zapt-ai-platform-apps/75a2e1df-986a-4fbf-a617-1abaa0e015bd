@@ -14,7 +14,8 @@ export default function ProjectDetailsForm() {
     addIssue, 
     updateIssue, 
     removeIssue,
-    generateReport 
+    generateReport,
+    setShouldGenerateLetter 
   } = useAppContext();
   
   const navigate = useNavigate();
@@ -73,6 +74,8 @@ export default function ProjectDetailsForm() {
     setIsSubmitting(true);
     
     try {
+      // Reset the shouldGenerateLetter flag to trigger the prompt on report page
+      setShouldGenerateLetter(null);
       await generateReport();
       navigate('/report');
     } catch (error) {
@@ -215,7 +218,7 @@ export default function ProjectDetailsForm() {
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="ml-auto"
+              className="ml-auto bg-blue-600 hover:bg-blue-700 text-white"
               icon={<FaArrowRight />}
             >
               {isSubmitting ? 'Generating Report...' : 'Generate Report'}
