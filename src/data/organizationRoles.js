@@ -12,7 +12,7 @@ export const organizationRoles = [
   'Engineer',
   'Principal Designer',
   'CDM Coordinator',
-  'Employer's Agent',
+  "Employer's Agent",
   
   // Contractor roles
   'Main Contractor',
