@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useReactToPrint } from 'react-to-print';
 import { useAppContext } from '../../contexts/AppContext';
 import Button from '../common/Button';
-import { FaFilePdf, FaFileCsv, FaPrint, FaCopy, FaFile, FaSave, FaList, FaPen, FaArrowLeft, FaEye, FaPaperPlane, FaRedo } from 'react-icons/fa';
+import { FaFilePdf, FaFile, FaPrint, FaCopy, FaSave, FaList, FaPen, FaArrowLeft, FaEye, FaRedo } from 'react-icons/fa';
 import DraftCommunication from './DraftCommunication';
 import SavedReportsList from './SavedReportsList';
 import { exportToPDF, exportToWord } from '../../utils/exportUtils';
@@ -16,7 +16,6 @@ export default function ReportView() {
     savedReports,
     saveCurrentReport,
     deleteSavedReport,
-    projectDetails,
     generateReport,
     generateDraftCommunication,
     shouldGenerateLetter,
@@ -40,9 +39,10 @@ export default function ReportView() {
   // Check if we should show the letter prompt
   useEffect(() => {
     if (report && shouldGenerateLetter === null) {
-      setShowLetterPrompt(true);
+      // Don't show the prompt immediately - we now want to show the report first
+      setShouldGenerateLetter(false);
     }
-  }, [report, shouldGenerateLetter]);
+  }, [report, shouldGenerateLetter, setShouldGenerateLetter]);
 
   // Handle letter prompt response
   const handleLetterPromptResponse = (wantsDraft) => {
@@ -50,7 +50,7 @@ export default function ReportView() {
     setShowLetterPrompt(false);
     
     if (wantsDraft) {
-      generateDraftCommunication(report);
+      generateDraftCommunication(displayReport);
       setShowDraft(true);
     }
   };
@@ -170,7 +170,9 @@ export default function ReportView() {
     // Format the draft content
     let content = `${draftCommunication.greeting}\n\n`;
     content += `${draftCommunication.body}\n\n`;
-    content += `${draftCommunication.closing}\n\n`;
+    if (draftCommunication.closing) {
+      content += `${draftCommunication.closing}\n\n`;
+    }
     content += `${draftCommunication.sender}`;
     
     exportToWord(content, `Draft_Communication_${displayReport.projectDetails.projectName.replace(/\s+/g, '_')}.docx`);
@@ -232,7 +234,9 @@ export default function ReportView() {
     // Format the draft content
     let content = `${draftCommunication.greeting}\n\n`;
     content += `${draftCommunication.body}\n\n`;
-    content += `${draftCommunication.closing}\n\n`;
+    if (draftCommunication.closing) {
+      content += `${draftCommunication.closing}\n\n`;
+    }
     content += `${draftCommunication.sender}`;
     
     navigator.clipboard.writeText(content)
@@ -275,7 +279,7 @@ export default function ReportView() {
       await generateReport();
       setSelectedReport(null); // Switch back to the current report
       setShowDraft(false);
-      setShouldGenerateLetter(null); // Reset to trigger prompt again
+      setShouldGenerateLetter(false); // Don't automatically show the prompt again
     } catch (error) {
       console.error('Error regenerating report:', error);
       alert('An error occurred while regenerating the report. Please try again.');
@@ -284,12 +288,22 @@ export default function ReportView() {
     }
   };
 
-  // Handle creating a draft letter when it wasn't initially created
+  // Handle creating a draft letter
   const handleCreateDraftLetter = () => {
-    if (!draftCommunication && displayReport) {
-      generateDraftCommunication(displayReport);
+    // If we're just toggling between views
+    if (showDraft) {
+      setShowDraft(false);
+      return;
     }
-    setShowDraft(true);
+    
+    // If we already have a draft, show it
+    if (draftCommunication) {
+      setShowDraft(true);
+      return;
+    }
+    
+    // Otherwise show the prompt
+    setShowLetterPrompt(true);
   };
   
   if (showSavedReports) {
@@ -353,19 +367,7 @@ export default function ReportView() {
             </Button>
           )}
           
-          {!showDraft && (
-            <Button
-              onClick={handleCreateDraftLetter}
-              size="sm"
-              variant="info"
-              icon={<FaPen />}
-              title="Create or View Draft Letter"
-            >
-              Letter
-            </Button>
-          )}
-          
-          {showDraft && (
+          {showDraft ? (
             <Button
               onClick={() => setShowDraft(false)}
               size="sm"
@@ -374,6 +376,16 @@ export default function ReportView() {
               title="Show Report"
             >
               Report
+            </Button>
+          ) : (
+            <Button
+              onClick={handleCreateDraftLetter}
+              size="sm"
+              variant="info"
+              icon={<FaPen />}
+              title="Create or View Draft Letter"
+            >
+              Letter
             </Button>
           )}
         </div>
@@ -618,7 +630,9 @@ export default function ReportView() {
           </Button>
         ) : (
           <Button
-            onClick={handleCreateDraftLetter}
+            onClick={() => {
+              generateDraftCommunication(displayReport);
+            }}
             size="sm"
             variant="primary"
             icon={<FaRedo />}

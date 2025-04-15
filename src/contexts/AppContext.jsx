@@ -163,7 +163,8 @@ export function AppProvider({ children }) {
       
       // Add each issue with proper formatting
       reportData.analysis.forEach((analysis, index) => {
-        body += `**Issue ${index + 1}: ${analysis.issue}**\n\n`;
+        // Use proper heading formatting instead of asterisks
+        body += `Issue ${index + 1}: ${analysis.issue}\n\n`;
         
         // Reference to relevant contract clauses
         if (analysis.relevantClauses && analysis.relevantClauses.length > 0) {
@@ -181,12 +182,43 @@ export function AppProvider({ children }) {
           body += `${summarizedAnalysis} `;
         }
         
-        // Add specific recommendation from the analysis
+        // Convert to direct address format and add specific recommendation from the analysis
         if (analysis.recommendations && analysis.recommendations.length > 0) {
-          body += `\n\nOur position is that ${analysis.recommendations[0].toLowerCase()} `;
+          // Create a professional, directly addressed recommendation
+          let recommendation = analysis.recommendations[0];
+          
+          // Replace third-person references with direct address
+          recommendation = recommendation
+            .replace(/For your specific issue, /g, '')
+            .replace(/the contractor's/gi, 'your')
+            .replace(/contractor /gi, 'you ')
+            .replace(/the employer's/gi, 'our')
+            .replace(/employer /gi, 'we ')
+            .replace(/submit/gi, 'please submit')
+            .replace(/ensure/gi, 'please ensure')
+            .replace(/implement/gi, 'please implement')
+            .replace(/document/gi, 'please document')
+            .replace(/compile/gi, 'please compile')
+            .replace(/maintain/gi, 'please maintain');
+          
+          body += `\n\nWe request that ${recommendation} `;
           
           if (analysis.recommendations.length > 1) {
-            body += `Additionally, we propose that ${analysis.recommendations[1].toLowerCase()} `;
+            // Convert second recommendation to direct address format
+            let secondRecommendation = analysis.recommendations[1]
+              .replace(/For your specific issue, /g, '')
+              .replace(/the contractor's/gi, 'your')
+              .replace(/contractor /gi, 'you ')
+              .replace(/the employer's/gi, 'our')
+              .replace(/employer /gi, 'we ')
+              .replace(/submit/gi, 'please submit')
+              .replace(/ensure/gi, 'please ensure')
+              .replace(/implement/gi, 'please implement')
+              .replace(/document/gi, 'please document')
+              .replace(/compile/gi, 'please compile')
+              .replace(/maintain/gi, 'please maintain');
+              
+            body += `Additionally, we ask that ${secondRecommendation} `;
           }
         }
         
@@ -538,123 +570,123 @@ export function AppProvider({ children }) {
   
   function generateLegalContext(contractType, issueDescription) {
     const issueKeywords = issueDescription.toLowerCase();
-    let context = "**LEGAL FRAMEWORK DIRECTLY RELEVANT TO YOUR ISSUE:**";
+    let context = "LEGAL FRAMEWORK DIRECTLY RELEVANT TO YOUR ISSUE:";
     
     // Contractual framework - focused on the specific contract
     if (contractType.includes('JCT') || contractType.includes('NEC') || contractType.includes('FIDIC')) {
-      context += `\n\n• **Your ${contractType} Contract**: This forms the primary legal basis for resolving your specific dispute. The specific clauses identified above establish the parties' respective rights and obligations directly relevant to your issue, the procedures for addressing this particular matter, and the remedies available in your situation.`;
+      context += `\n\n• Your ${contractType} Contract: This forms the primary legal basis for resolving your specific dispute. The specific clauses identified above establish the parties' respective rights and obligations directly relevant to your issue, the procedures for addressing this particular matter, and the remedies available in your situation.`;
     } else {
-      context += "\n\n• **Your Specific Contract Agreement**: This forms the primary legal basis for resolving your specific dispute. The specific clauses relevant to your issue establish the rights and obligations that apply directly to your situation, the procedures for addressing your particular issue, and the remedies available to you.";
+      context += "\n\n• Your Specific Contract Agreement: This forms the primary legal basis for resolving your specific dispute. The specific clauses relevant to your issue establish the rights and obligations that apply directly to your situation, the procedures for addressing your particular issue, and the remedies available to you.";
     }
     
     // Issue-specific legislation - only include what's directly relevant
     if (issueKeywords.includes('payment')) {
-      context += "\n\n• **The Housing Grants, Construction and Regeneration Act 1996 (as amended)**: For your specific payment issue, this legislation provides statutory rights that apply regardless of your contract terms, including:";
+      context += "\n\n• The Housing Grants, Construction and Regeneration Act 1996 (as amended): For your specific payment issue, this legislation provides statutory rights that apply regardless of your contract terms, including:";
       context += "\n   - Specific requirements for payment mechanisms and notice provisions that apply to your situation";
       context += "\n   - The right to refer your specific dispute to adjudication";
       context += "\n   - The right to suspend performance for non-payment following proper notice if applicable to your situation";
       
-      context += "\n\n• **The Late Payment of Commercial Debts (Interest) Act 1998**: For your specific payment issue, this legislation provides a statutory entitlement to interest on late payments at 8% above the Bank of England base rate, plus potential recovery of costs associated with pursuing payment.";
+      context += "\n\n• The Late Payment of Commercial Debts (Interest) Act 1998: For your specific payment issue, this legislation provides a statutory entitlement to interest on late payments at 8% above the Bank of England base rate, plus potential recovery of costs associated with pursuing payment.";
       
-      context += "\n\n• **Part II of the Construction Act (Sections 109-113)**: For your specific payment issue, these sections address:";
+      context += "\n\n• Part II of the Construction Act (Sections 109-113): For your specific payment issue, these sections address:";
       context += "\n   - Requirements for an adequate mechanism for determining what payments become due and when";
       context += "\n   - The requirement for a final date for payment";
       context += "\n   - Provision for notices of intention to withhold payment ('Pay Less Notices')";
       
       // Payment-specific case law
-      context += "\n\n• **Relevant Case Law**: For your specific payment issue, the following cases establish important legal principles that may apply:";
-      context += "\n   - *S&T (UK) Ltd v Grove Developments Ltd* [2018] EWCA Civ 2448: Establishing the importance of valid payment and pay less notices";
+      context += "\n\n• Relevant Case Law: For your specific payment issue, the following cases establish important legal principles that may apply:";
+      context += "\n   - S&T (UK) Ltd v Grove Developments Ltd [2018] EWCA Civ 2448: Establishing the importance of valid payment and pay less notices";
       if (issueKeywords.includes('notice') || issueKeywords.includes('notif')) {
-        context += "\n   - *ISG Construction Ltd v Seevic College* [2014] EWHC 4007 (TCC): Highlighting the consequences of failing to issue payment notices";
-        context += "\n   - *Henia Investments Inc v Beck Interiors Ltd* [2015] EWHC 2433 (TCC): Addressing the requirements for a valid payment application";
+        context += "\n   - ISG Construction Ltd v Seevic College [2014] EWHC 4007 (TCC): Highlighting the consequences of failing to issue payment notices";
+        context += "\n   - Henia Investments Inc v Beck Interiors Ltd [2015] EWHC 2433 (TCC): Addressing the requirements for a valid payment application";
       }
     }
     
     else if (issueKeywords.includes('delay') || issueKeywords.includes('extension')) {
-      context += "\n\n• **The Housing Grants, Construction and Regeneration Act 1996**: For your specific delay issue, this legislation provides the right to refer your dispute to adjudication at any time, which could be relevant if your extension of time claim remains unresolved.";
+      context += "\n\n• The Housing Grants, Construction and Regeneration Act 1996: For your specific delay issue, this legislation provides the right to refer your dispute to adjudication at any time, which could be relevant if your extension of time claim remains unresolved.";
       
       // Delay-specific case law
-      context += "\n\n• **Relevant Case Law**: For your specific delay issue, the following cases establish important legal principles that may apply:";
-      context += "\n   - *Walter Lilly & Co Ltd v Mackay* [2012] EWHC 1773 (TCC): Providing guidance on extension of time claims and concurrent delay";
+      context += "\n\n• Relevant Case Law: For your specific delay issue, the following cases establish important legal principles that may apply:";
+      context += "\n   - Walter Lilly & Co Ltd v Mackay [2012] EWHC 1773 (TCC): Providing guidance on extension of time claims and concurrent delay";
       
       if (issueKeywords.includes('concurrent')) {
-        context += "\n   - *North Midland Building Ltd v Cyden Homes Ltd* [2018] EWCA Civ 1744: Establishing that parties can allocate the risk of concurrent delay through express contractual provisions";
+        context += "\n   - North Midland Building Ltd v Cyden Homes Ltd [2018] EWCA Civ 1744: Establishing that parties can allocate the risk of concurrent delay through express contractual provisions";
       }
       
       if (issueKeywords.includes('global claim') || issueKeywords.includes('global')) {
-        context += "\n   - *Multiplex Construction (UK) Ltd v Honeywell Control Systems Ltd* [2007] EWHC 447 (TCC): Addressing global claims and the burden of proof in delay claims";
+        context += "\n   - Multiplex Construction (UK) Ltd v Honeywell Control Systems Ltd [2007] EWHC 447 (TCC): Addressing global claims and the burden of proof in delay claims";
       }
     }
     
     else if (issueKeywords.includes('variation') || issueKeywords.includes('change')) {
-      context += "\n\n• **The Housing Grants, Construction and Regeneration Act 1996**: For your specific variation issue, this legislation provides the right to refer your dispute to adjudication at any time, which could be relevant if your variation claim remains unresolved.";
+      context += "\n\n• The Housing Grants, Construction and Regeneration Act 1996: For your specific variation issue, this legislation provides the right to refer your dispute to adjudication at any time, which could be relevant if your variation claim remains unresolved.";
       
-      context += "\n\n• **Common Law Principles Regarding Variations**: For your specific variation issue, these principles establish that:";
+      context += "\n\n• Common Law Principles Regarding Variations: For your specific variation issue, these principles establish that:";
       context += "\n   - Variations must be instructed in accordance with the contract to be valid";
       context += "\n   - The scope of permitted variations may be limited to changes of a similar nature and scale to the original works";
       
       // Variation-specific case law
-      context += "\n\n• **Relevant Case Law**: For your specific variation issue, the following cases establish important legal principles that may apply:";
+      context += "\n\n• Relevant Case Law: For your specific variation issue, the following cases establish important legal principles that may apply:";
       
       if (issueKeywords.includes('verbal') || issueKeywords.includes('instruct') || issueKeywords.includes('authoriz') || issueKeywords.includes('authoris')) {
-        context += "\n   - *Blue v Ashley* [2017] EWHC 1928 (Comm): Emphasizing the importance of following contractual variation procedures";
-        context += "\n   - *RTS Flexible Systems Ltd v Molkerei Alois Müller GmbH* [2010] UKSC 14: Addressing when work proceeds before formal contract execution";
+        context += "\n   - Blue v Ashley [2017] EWHC 1928 (Comm): Emphasizing the importance of following contractual variation procedures";
+        context += "\n   - RTS Flexible Systems Ltd v Molkerei Alois Müller GmbH [2010] UKSC 14: Addressing when work proceeds before formal contract execution";
       }
       
       if (issueKeywords.includes('valuation')) {
-        context += "\n   - *Henry Boot Construction Ltd v Alstom Combined Cycles Ltd* [2005] EWCA Civ 814: Addressing the valuation of variations where the contract provides a specific mechanism";
+        context += "\n   - Henry Boot Construction Ltd v Alstom Combined Cycles Ltd [2005] EWCA Civ 814: Addressing the valuation of variations where the contract provides a specific mechanism";
       }
     }
     
     else if (issueKeywords.includes('defect') || issueKeywords.includes('quality')) {
       if (issueKeywords.includes('dwelling') || issueKeywords.includes('residential') || issueKeywords.includes('house')) {
-        context += "\n\n• **The Defective Premises Act 1972**: For your specific quality issue involving a dwelling, Section 1 imposes a duty to ensure the work is done in a workmanlike or professional manner, with proper materials, and that the dwelling is fit for habitation when completed.";
+        context += "\n\n• The Defective Premises Act 1972: For your specific quality issue involving a dwelling, Section 1 imposes a duty to ensure the work is done in a workmanlike or professional manner, with proper materials, and that the dwelling is fit for habitation when completed.";
       }
       
-      context += "\n\n• **The Building Act 1984 and Building Regulations**: For your specific quality issue, these establish minimum technical standards for design and construction that may be relevant to determining what constitutes defective work in your situation.";
+      context += "\n\n• The Building Act 1984 and Building Regulations: For your specific quality issue, these establish minimum technical standards for design and construction that may be relevant to determining what constitutes defective work in your situation.";
       
-      context += "\n\n• **The Supply of Goods and Services Act 1982**: For your specific quality issue, this implies terms that services will be carried out with reasonable care and skill, within a reasonable time, and for a reasonable charge, which may be relevant to quality standards in your situation.";
+      context += "\n\n• The Supply of Goods and Services Act 1982: For your specific quality issue, this implies terms that services will be carried out with reasonable care and skill, within a reasonable time, and for a reasonable charge, which may be relevant to quality standards in your situation.";
       
       // Defects-specific case law
-      context += "\n\n• **Relevant Case Law**: For your specific quality issue, the following cases establish important legal principles that may apply:";
+      context += "\n\n• Relevant Case Law: For your specific quality issue, the following cases establish important legal principles that may apply:";
       
       if (issueKeywords.includes('design') || issueKeywords.includes('specification')) {
-        context += "\n   - *MT Højgaard A/S v E.ON Climate & Renewables UK Robin Rigg East Ltd* [2017] UKSC 59: Addressing fitness for purpose obligations in construction contracts";
+        context += "\n   - MT Højgaard A/S v E.ON Climate & Renewables UK Robin Rigg East Ltd [2017] UKSC 59: Addressing fitness for purpose obligations in construction contracts";
       }
       
       if (issueKeywords.includes('rectif') || issueKeywords.includes('repair') || issueKeywords.includes('remed')) {
-        context += "\n   - *McGlinn v Waltham Contractors Ltd* [2007] EWHC 149 (TCC): Providing guidance on the assessment of damages for defective work";
+        context += "\n   - McGlinn v Waltham Contractors Ltd [2007] EWHC 149 (TCC): Providing guidance on the assessment of damages for defective work";
       }
       
       if (issueKeywords.includes('limitation') || issueKeywords.includes('liability')) {
-        context += "\n   - *Trebor Bassett Holdings Ltd v ADT Fire & Security plc* [2012] EWCA Civ 1158: Addressing limitation of liability clauses in relation to defective work";
+        context += "\n   - Trebor Bassett Holdings Ltd v ADT Fire & Security plc [2012] EWCA Civ 1158: Addressing limitation of liability clauses in relation to defective work";
       }
     }
     
     else if (issueKeywords.includes('design')) {
-      context += "\n\n• **Common Law Principles Regarding Design Responsibility**: For your specific design issue, these principles establish that:";
+      context += "\n\n• Common Law Principles Regarding Design Responsibility: For your specific design issue, these principles establish that:";
       context += "\n   - A 'reasonable skill and care' obligation is measured against the standard of a reasonably competent member of the relevant profession";
       context += "\n   - A 'fitness for purpose' obligation is stricter, requiring the design to be suitable for its intended purpose";
       
       // Design-specific case law
-      context += "\n\n• **Relevant Case Law**: For your specific design issue, the following cases establish important legal principles that may apply:";
-      context += "\n   - *MT Højgaard A/S v E.ON Climate & Renewables UK Robin Rigg East Ltd* [2017] UKSC 59: Addressing the distinction between 'reasonable skill and care' and 'fitness for purpose' obligations";
+      context += "\n\n• Relevant Case Law: For your specific design issue, the following cases establish important legal principles that may apply:";
+      context += "\n   - MT Højgaard A/S v E.ON Climate & Renewables UK Robin Rigg East Ltd [2017] UKSC 59: Addressing the distinction between 'reasonable skill and care' and 'fitness for purpose' obligations";
       
       if (contractType.includes('Design and Build') || issueKeywords.includes('contractor design')) {
-        context += "\n   - *SSE Generation Ltd v Hochtief Solutions AG* [2018] CSIH 26: Addressing design obligations in design and build contracts";
+        context += "\n   - SSE Generation Ltd v Hochtief Solutions AG [2018] CSIH 26: Addressing design obligations in design and build contracts";
       }
     }
     
     // For all issues - include the directly relevant dispute resolution options
-    context += "\n\n• **Dispute Resolution Options**: For your specific issue, you have several options to resolve the dispute:";
-    context += "\n   - **Adjudication**: A statutory right providing a 28-day procedure for an interim binding decision on your specific dispute";
-    context += "\n   - **Mediation**: A non-binding facilitated negotiation process that may help preserve commercial relationships while resolving your specific issue";
+    context += "\n\n• Dispute Resolution Options: For your specific issue, you have several options to resolve the dispute:";
+    context += "\n   - Adjudication: A statutory right providing a 28-day procedure for an interim binding decision on your specific dispute";
+    context += "\n   - Mediation: A non-binding facilitated negotiation process that may help preserve commercial relationships while resolving your specific issue";
     
     if (contractType.includes('arbitration') || issueKeywords.includes('arbitration')) {
-      context += "\n   - **Arbitration**: If provided for in your contract, a private binding dispute resolution process for your specific issue";
+      context += "\n   - Arbitration: If provided for in your contract, a private binding dispute resolution process for your specific issue";
     }
     
-    context += "\n   - **Litigation**: Court proceedings, typically in the Technology and Construction Court for significant construction disputes like yours";
+    context += "\n   - Litigation: Court proceedings, typically in the Technology and Construction Court for significant construction disputes like yours";
     
     return context;
   }
@@ -762,111 +794,111 @@ export function AppProvider({ children }) {
     
     // Payment issues outcomes - focused on the specific issue
     if (issueKeywords.includes('payment')) {
-      outcomes += "\n\n**1. Negotiated Resolution**";
+      outcomes += "\n\n1. Negotiated Resolution";
       outcomes += "\n   • A direct agreement between parties on the disputed payment based on contractual entitlements.";
       outcomes += "\n   • For your specific situation, this could involve agreement on the precise valuation or a commercial compromise.";
       
-      outcomes += "\n\n**2. Application of Contractual Mechanisms**";
+      outcomes += "\n\n2. Application of Contractual Mechanisms";
       outcomes += "\n   • Utilization of the specific payment notice procedures under your contract and the Construction Act.";
       outcomes += "\n   • For your situation, this could result in 'default payment' if proper notices were not issued.";
       
-      outcomes += "\n\n**3. Formal Dispute Resolution**";
+      outcomes += "\n\n3. Formal Dispute Resolution";
       outcomes += "\n   • If other approaches fail, progression to adjudication, which is particularly suitable for payment disputes.";
       outcomes += "\n   • For your specific situation, an adjudicator would determine the amount due based on your contract terms and the evidence presented.";
     } 
     // Delay issues outcomes - focused on the specific issue
     else if (issueKeywords.includes('delay')) {
-      outcomes += "\n\n**1. Extension of Time Award**";
+      outcomes += "\n\n1. Extension of Time Award";
       outcomes += "\n   • Assessment and award of additional time to complete the works without liability for liquidated damages.";
       outcomes += "\n   • For your specific situation, this could involve full or partial extension based on your entitlement and evidence.";
       
       if (issueKeywords.includes('compensation') || issueKeywords.includes('loss') || issueKeywords.includes('expense')) {
-        outcomes += "\n\n**2. Financial Compensation**";
+        outcomes += "\n\n2. Financial Compensation";
         outcomes += "\n   • Recovery of financial costs associated with the delay if it is a compensable event under your contract.";
         outcomes += "\n   • For your specific situation, this could include extended preliminaries and other time-related costs.";
       }
       
       if (issueKeywords.includes('liquidated') || issueKeywords.includes('damages')) {
-        outcomes += "\n\n**3. Liquidated Damages Assessment**";
+        outcomes += "\n\n3. Liquidated Damages Assessment";
         outcomes += "\n   • If the delay is determined to be your responsibility, application of liquidated damages at the contractual rate.";
         outcomes += "\n   • For your specific situation, this would involve deduction of the pre-agreed sum for contractor-caused delay.";
       }
       
-      outcomes += "\n\n**4. Formal Dispute Resolution**";
+      outcomes += "\n\n4. Formal Dispute Resolution";
       outcomes += "\n   • If agreement cannot be reached, progression to adjudication or other formal dispute resolution.";
       outcomes += "\n   • For your specific situation, this would provide an independent determination of time entitlement.";
     } 
     // Variation issues outcomes - focused on the specific issue
     else if (issueKeywords.includes('variation') || issueKeywords.includes('change')) {
-      outcomes += "\n\n**1. Valuation Agreement**";
+      outcomes += "\n\n1. Valuation Agreement";
       outcomes += "\n   • Agreement on the value of the variation and any associated time implications.";
       outcomes += "\n   • For your specific situation, this could involve acceptance of your valuation or a negotiated sum.";
       
       if (issueKeywords.includes('instruct') || issueKeywords.includes('authoriz') || issueKeywords.includes('authoris')) {
-        outcomes += "\n\n**2. Disputed Instruction Status**";
+        outcomes += "\n\n2. Disputed Instruction Status";
         outcomes += "\n   • Resolution of whether a proper variation instruction was issued for the work in question.";
         outcomes += "\n   • For your specific situation, this could involve retrospective formalization or rejection of the claim.";
       }
       
-      outcomes += "\n\n**3. Formal Dispute Resolution**";
+      outcomes += "\n\n3. Formal Dispute Resolution";
       outcomes += "\n   • If agreement cannot be reached, progression to adjudication or other formal dispute resolution.";
       outcomes += "\n   • For your specific situation, this would provide an independent determination on both entitlement and valuation.";
     } 
     // Quality/defects issues outcomes - focused on the specific issue
     else if (issueKeywords.includes('defect') || issueKeywords.includes('quality')) {
-      outcomes += "\n\n**1. Remedial Works Agreement**";
+      outcomes += "\n\n1. Remedial Works Agreement";
       outcomes += "\n   • Agreement on the scope, method, and timing of remedial works to address the identified defects.";
       outcomes += "\n   • For your specific situation, this could involve a detailed remediation plan with agreed criteria for acceptance.";
       
-      outcomes += "\n\n**2. Financial Adjustment**";
+      outcomes += "\n\n2. Financial Adjustment";
       outcomes += "\n   • Agreement on financial compensation instead of remedial works, particularly for minor defects.";
       outcomes += "\n   • For your specific situation, this could involve a reduction in contract sum proportionate to the defect impact.";
       
-      outcomes += "\n\n**3. Expert Determination**";
+      outcomes += "\n\n3. Expert Determination";
       outcomes += "\n   • Appointment of independent expert to determine technical aspects of the defects dispute.";
       outcomes += "\n   • For your specific situation, this could resolve disagreements about whether works are defective or the required remediation.";
       
-      outcomes += "\n\n**4. Formal Dispute Resolution**";
+      outcomes += "\n\n4. Formal Dispute Resolution";
       outcomes += "\n   • If agreement cannot be reached, progression to adjudication or other formal dispute resolution.";
       outcomes += "\n   • For your specific situation, this would provide an independent determination on defect liability and remediation.";
     }
     // Design issues outcomes - focused on the specific issue
     else if (issueKeywords.includes('design')) {
-      outcomes += "\n\n**1. Design Responsibility Determination**";
+      outcomes += "\n\n1. Design Responsibility Determination";
       outcomes += "\n   • Clarification of design responsibility allocation between parties for the specific elements in question.";
       outcomes += "\n   • For your specific situation, this could resolve whether responsibility lies with employer, contractor, or design consultant.";
       
-      outcomes += "\n\n**2. Design Solution Agreement**";
+      outcomes += "\n\n2. Design Solution Agreement";
       outcomes += "\n   • Agreement on required design changes or remediation to address the identified issues.";
       outcomes += "\n   • For your specific situation, this could involve revised designs with clear approval procedures.";
       
-      outcomes += "\n\n**3. Cost and Time Impact Resolution**";
+      outcomes += "\n\n3. Cost and Time Impact Resolution";
       outcomes += "\n   • Agreement on financial and programme implications of design changes or remediation.";
       outcomes += "\n   • For your specific situation, this could involve additional payment and/or extension of time if appropriate.";
       
-      outcomes += "\n\n**4. Formal Dispute Resolution**";
+      outcomes += "\n\n4. Formal Dispute Resolution";
       outcomes += "\n   • If agreement cannot be reached, progression to adjudication or other formal dispute resolution.";
       outcomes += "\n   • For your specific situation, this would provide an independent determination on design liability and remediation.";
     }
     // General contractual disputes outcomes - focused on the specific issue
     else {
-      outcomes += "\n\n**1. Contractual Resolution Through Existing Mechanisms**";
+      outcomes += "\n\n1. Contractual Resolution Through Existing Mechanisms";
       outcomes += "\n   • Application of specific contractual procedures designed to address your particular issue.";
       outcomes += "\n   • For your specific situation, this could involve determination by the contract administrator or project manager.";
       
-      outcomes += "\n\n**2. Negotiated Commercial Settlement**";
+      outcomes += "\n\n2. Negotiated Commercial Settlement";
       outcomes += "\n   • A commercial compromise specifically addressing your issue that balances the interests of both parties.";
       outcomes += "\n   • For your specific situation, this could involve concessions on both sides to reach an acceptable resolution.";
       
-      outcomes += "\n\n**3. Mediation**";
+      outcomes += "\n\n3. Mediation";
       outcomes += "\n   • Engagement of neutral mediator to facilitate negotiated resolution of your specific issue.";
       outcomes += "\n   • For your specific situation, this could help preserve commercial relationships while resolving the dispute.";
       
-      outcomes += "\n\n**4. Adjudication**";
+      outcomes += "\n\n4. Adjudication";
       outcomes += "\n   • Statutory 28-day dispute resolution process delivering a temporarily binding decision on your specific issue.";
       outcomes += "\n   • For your specific situation, this would provide a quick resolution while preserving rights to final determination.";
       
-      outcomes += "\n\n**5. Arbitration or Litigation**";
+      outcomes += "\n\n5. Arbitration or Litigation";
       outcomes += "\n   • Final binding determination of your specific issue through arbitration or court proceedings.";
       outcomes += "\n   • For your specific situation, this would provide comprehensive legal assessment of all aspects of your dispute.";
     }
@@ -880,115 +912,115 @@ export function AppProvider({ children }) {
     
     // Payment issues timeline - focused on the specific issue
     if (issueKeywords.includes('payment')) {
-      timeline += "\n\n**Immediate Actions (1-3 days)**";
+      timeline += "\n\nImmediate Actions (1-3 days)";
       timeline += "\n• Review your contract payment terms and notice requirements that specifically apply to your situation.";
       timeline += "\n• Verify status of all payment applications, notices, and certificates relevant to your specific issue.";
       timeline += "\n• Compile all documentation relevant to your payment issue (applications, notices, certificates).";
       timeline += "\n• Quantify the exact amount claimed in your specific situation with supporting calculations.";
       
-      timeline += "\n\n**Short-Term Actions (3-7 days)**";
+      timeline += "\n\nShort-Term Actions (3-7 days)";
       timeline += "\n• Issue formal correspondence clearly stating your position with reference to contract clauses.";
       timeline += "\n• Request a meeting with relevant decision-makers to discuss resolution of your specific payment issue.";
       timeline += "\n• Prepare detailed payment reconciliation showing amounts applied for, certified, paid, and outstanding.";
       
-      timeline += "\n\n**Medium-Term Actions (7-14 days)**";
+      timeline += "\n\nMedium-Term Actions (7-14 days)";
       timeline += "\n• If payment remains unresolved, consider whether to issue notice of intention to suspend performance.";
       timeline += "\n• Consider whether to claim interest under contractual provisions or the Late Payment legislation.";
       timeline += "\n• Engage senior management from both organizations in resolution discussions.";
       
-      timeline += "\n\n**Longer-Term Actions (14-28 days)**";
+      timeline += "\n\nLonger-Term Actions (14-28 days)";
       timeline += "\n• If your specific payment issue remains unresolved, consider formal dispute resolution options.";
       timeline += "\n• Prepare necessary documentation for adjudication if required for your situation.";
     } 
     // Delay issues timeline - focused on the specific issue
     else if (issueKeywords.includes('delay')) {
-      timeline += "\n\n**Immediate Actions (1-3 days)**";
+      timeline += "\n\nImmediate Actions (1-3 days)";
       timeline += "\n• Document the specific cause and extent of delay with supporting evidence.";
       timeline += "\n• Review your contract provisions regarding extension of time that apply to your situation.";
       timeline += "\n• Check programme impact using appropriate scheduling method for your specific delay.";
       timeline += "\n• Verify compliance with contractual time limits for notifications relevant to your situation.";
       
-      timeline += "\n\n**Short-Term Actions (3-7 days)**";
+      timeline += "\n\nShort-Term Actions (3-7 days)";
       timeline += "\n• Issue formal delay notification in accordance with your contractual requirements.";
       timeline += "\n• Implement mitigation measures to minimize the impact of your specific delay.";
       timeline += "\n• Hold a delay impact assessment meeting with relevant project team members.";
       timeline += "\n• Begin tracking costs associated with your specific delay for potential loss and expense claim.";
       
-      timeline += "\n\n**Medium-Term Actions (7-21 days)**";
+      timeline += "\n\nMedium-Term Actions (7-21 days)";
       timeline += "\n• Submit detailed extension of time application with supporting documentation for your specific delay.";
       timeline += "\n• Request extension of time assessment meeting with contract administrator/project manager.";
       timeline += "\n• Continue documenting progress and impact of your specific delay event.";
       
-      timeline += "\n\n**Longer-Term Actions (21-42 days)**";
+      timeline += "\n\nLonger-Term Actions (21-42 days)";
       timeline += "\n• Follow up on extension of time application if no response received within contractual timeframe.";
       timeline += "\n• Submit loss and expense claim if your specific delay is compensable under the contract.";
       timeline += "\n• Consider whether acceleration measures might be appropriate for your situation.";
     } 
     // Variation issues timeline - focused on the specific issue
     else if (issueKeywords.includes('variation') || issueKeywords.includes('change')) {
-      timeline += "\n\n**Immediate Actions (1-3 days)**";
+      timeline += "\n\nImmediate Actions (1-3 days)";
       timeline += "\n• Clarify whether your specific variation has been properly instructed in accordance with your contract.";
       timeline += "\n• Review your contract provisions regarding variation instructions, valuation, and notification.";
       timeline += "\n• Document the current status of works affected by your specific variation.";
       timeline += "\n• Assess initial scope and potential impact of your variation on programme and cost.";
       
-      timeline += "\n\n**Short-Term Actions (3-7 days)**";
+      timeline += "\n\nShort-Term Actions (3-7 days)";
       timeline += "\n• If variation instruction was not properly issued, seek formal confirmation or regularization.";
       timeline += "\n• Submit initial notification of time and cost implications for your specific variation.";
       timeline += "\n• Prepare method statement and resource plan for executing your varied work.";
       
-      timeline += "\n\n**Medium-Term Actions (7-14 days)**";
+      timeline += "\n\nMedium-Term Actions (7-14 days)";
       timeline += "\n• Submit detailed variation quotation for your specific change, including direct costs, preliminaries impact, and programme implications.";
       timeline += "\n• Seek formal acceptance of quotation if your contract mechanism allows.";
       timeline += "\n• Begin implementing your variation while maintaining detailed records.";
       
-      timeline += "\n\n**During Execution (Ongoing)**";
+      timeline += "\n\nDuring Execution (Ongoing)";
       timeline += "\n• Maintain detailed records specific to your variation, including labor, plant, and materials.";
       timeline += "\n• Document any changes to your variation scope during execution.";
       timeline += "\n• Provide regular updates on your variation progress and cost.";
     }
     // Quality/defects issues timeline - focused on the specific issue
     else if (issueKeywords.includes('defect') || issueKeywords.includes('quality')) {
-      timeline += "\n\n**Immediate Actions (1-3 days)**";
+      timeline += "\n\nImmediate Actions (1-3 days)";
       timeline += "\n• Document the specific defects thoroughly with photographs and measurements.";
       timeline += "\n• Review your contract provisions regarding quality standards and defects rectification.";
       timeline += "\n• Identify potential causes of your specific defects and responsibility allocation.";
       
-      timeline += "\n\n**Short-Term Actions (3-7 days)**";
+      timeline += "\n\nShort-Term Actions (3-7 days)";
       timeline += "\n• Issue formal defect notification in accordance with your contractual procedures.";
       timeline += "\n• Arrange inspection of the specific defects with relevant parties.";
       timeline += "\n• Prepare initial remediation proposal or response to defect notification for your situation.";
       
-      timeline += "\n\n**Medium-Term Actions (7-21 days)**";
+      timeline += "\n\nMedium-Term Actions (7-21 days)";
       timeline += "\n• Agree on scope, method, and timing of remedial works for your specific defects.";
       timeline += "\n• Address any disagreements about responsibility or required remediation for your situation.";
       timeline += "\n• Implement agreed remedial works or alternative resolution for your specific defects.";
       
-      timeline += "\n\n**Longer-Term Actions (21+ days)**";
+      timeline += "\n\nLonger-Term Actions (21+ days)";
       timeline += "\n• Conduct inspection of completed remedial works for your specific defects.";
       timeline += "\n• Obtain formal acceptance of remedial works or further instruction if required.";
       timeline += "\n• Document lessons learned to prevent similar defects in future work.";
     }
     // General contractual issues timeline - focused on the specific issue
     else {
-      timeline += "\n\n**Immediate Actions (1-5 days)**";
+      timeline += "\n\nImmediate Actions (1-5 days)";
       timeline += "\n• Review the specific contract clauses relevant to your issue.";
       timeline += "\n• Gather all documentation related to your specific contractual issue.";
       timeline += "\n• Assess the factual circumstances and contractual position for your specific situation.";
       timeline += "\n• Compile chronology of events relevant to your specific issue with supporting documentation.";
       
-      timeline += "\n\n**Short-Term Actions (5-10 days)**";
+      timeline += "\n\nShort-Term Actions (5-10 days)";
       timeline += "\n• Prepare a clear written statement of your position regarding your specific issue.";
       timeline += "\n• Document the commercial and practical impact of the issue on your operations.";
       timeline += "\n• Identify potential solutions that would be acceptable for your specific situation.";
       timeline += "\n• Issue formal correspondence setting out your position and proposed resolution.";
       
-      timeline += "\n\n**Medium-Term Actions (10-20 days)**";
+      timeline += "\n\nMedium-Term Actions (10-20 days)";
       timeline += "\n• Engage in direct discussion with the other party to explore resolution of your specific issue.";
       timeline += "\n• Consider whether any contractual determination mechanisms apply to your specific issue.";
       timeline += "\n• If initial discussions are unsuccessful, escalate to senior management level.";
       
-      timeline += "\n\n**Longer-Term Actions (20-40 days)**";
+      timeline += "\n\nLonger-Term Actions (20-40 days)";
       timeline += "\n• If direct negotiation is unsuccessful, consider alternative dispute resolution options for your specific issue.";
       timeline += "\n• Prepare detailed submission for chosen dispute resolution method addressing your specific issue.";
       timeline += "\n• Continue to explore settlement possibilities in parallel with formal processes.";
@@ -999,10 +1031,10 @@ export function AppProvider({ children }) {
   
   function generateRiskAssessment(issueDescription, contractType, role) {
     const issueKeywords = issueDescription.toLowerCase();
-    let assessment = "**RISK ASSESSMENT SPECIFIC TO YOUR ISSUE:**";
+    let assessment = "RISK ASSESSMENT SPECIFIC TO YOUR ISSUE:";
     
     // Probability assessment section - focused on the specific issue
-    assessment += "\n\n**Probability Analysis for Your Specific Situation:**";
+    assessment += "\n\nProbability Analysis for Your Specific Situation:";
     
     if (issueKeywords.includes('payment') && (role.includes('Contractor') || role.includes('Sub-contractor'))) {
       assessment += "\n\nBased on your specific payment issue, the probability of a favorable resolution depends on these key factors specific to your situation:";
@@ -1057,13 +1089,13 @@ export function AppProvider({ children }) {
     }
     
     // Cost-benefit analysis - focused on the specific issue
-    assessment += "\n\n**Cost-Benefit Analysis for Your Specific Issue:**";
-    assessment += "\n\n**Direct Resolution Costs:**";
+    assessment += "\n\nCost-Benefit Analysis for Your Specific Issue:";
+    assessment += "\n\nDirect Resolution Costs:";
     assessment += "\n• Management time: Time required for document review, correspondence, and meetings";
     assessment += "\n• Professional fees: Potential costs for specialist advice relevant to your specific issue";
     assessment += "\n• Dispute resolution costs: If formal processes are required for your specific issue";
     
-    assessment += "\n\n**Quantifiable Benefits:**";
+    assessment += "\n\nQuantifiable Benefits:";
     if (issueKeywords.includes('payment')) {
       assessment += "\n• Direct recovery: The disputed payment amount in your specific situation";
       assessment += "\n• Interest: Statutory or contractual interest that applies to your situation";
@@ -1082,13 +1114,13 @@ export function AppProvider({ children }) {
       assessment += "\n• Risk mitigation: Avoided costs if your specific issue is successfully resolved";
     }
     
-    assessment += "\n\n**Intangible Factors:**";
+    assessment += "\n\nIntangible Factors:";
     assessment += "\n• Relationship impact: Effect on commercial relationships if pursuing your specific issue";
     assessment += "\n• Precedent effect: How resolution might affect other similar issues on this project";
     assessment += "\n• Team morale: Impact on project team effectiveness related to your specific issue";
     
     // Recommended approach - focused on the specific issue
-    assessment += "\n\n**Recommended Approach for Your Specific Issue:**";
+    assessment += "\n\nRecommended Approach for Your Specific Issue:";
     
     if (issueKeywords.includes('payment') && (role.includes('Contractor') || role.includes('Sub-contractor'))) {
       assessment += "\n\nBased on risk-benefit analysis of your specific payment issue, a graduated approach is recommended:";

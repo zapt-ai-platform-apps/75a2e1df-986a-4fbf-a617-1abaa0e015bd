@@ -9,6 +9,21 @@ const DraftCommunication = forwardRef(({ draftCommunication }, ref) => {
     );
   }
   
+  // Function to convert the text with proper formatting
+  const formatBody = (text) => {
+    return text.split('\n\n').map((paragraph, i) => {
+      // Check if paragraph is a heading (Issue X: ...)
+      if (paragraph.match(/^Issue \d+:/)) {
+        return (
+          <h3 key={i} className="text-lg font-semibold mt-4 mb-2">
+            {paragraph}
+          </h3>
+        );
+      }
+      return <p key={i} className="mb-4">{paragraph}</p>;
+    });
+  };
+  
   return (
     <div 
       ref={ref} 
@@ -31,13 +46,15 @@ const DraftCommunication = forwardRef(({ draftCommunication }, ref) => {
           <p className="text-gray-800">{draftCommunication.greeting}</p>
         </div>
         
-        <div className="mb-4 whitespace-pre-line">
-          <p className="text-gray-800">{draftCommunication.body}</p>
+        <div className="mb-4">
+          {formatBody(draftCommunication.body)}
         </div>
         
-        <div className="mb-4">
-          <p className="text-gray-800">{draftCommunication.closing}</p>
-        </div>
+        {draftCommunication.closing && (
+          <div className="mb-4">
+            <p className="text-gray-800">{draftCommunication.closing}</p>
+          </div>
+        )}
         
         <div className="whitespace-pre-line">
           <p className="text-gray-800">{draftCommunication.sender}</p>
