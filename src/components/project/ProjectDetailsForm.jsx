@@ -206,7 +206,8 @@ export default function ProjectDetailsForm() {
               <Button
                 type="button"
                 onClick={addIssue}
-                className="bg-gray-600 hover:bg-gray-700"
+                size="sm"
+                variant="secondary"
                 icon={<FaPlus />}
               >
                 Add Another Issue
@@ -214,12 +215,14 @@ export default function ProjectDetailsForm() {
             </div>
           </div>
           
-          <div className="pt-6 border-t border-gray-200 mt-8">
+          <div className="pt-6 border-t border-gray-200 mt-8 flex justify-end">
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="ml-auto bg-blue-600 hover:bg-blue-700 text-white"
+              size="md"
+              variant="primary"
               icon={<FaArrowRight />}
+              className="text-gray-800 bg-gray-100 hover:bg-gray-200 border border-gray-300"
             >
               {isSubmitting ? 'Generating Report...' : 'Generate Report'}
             </Button>

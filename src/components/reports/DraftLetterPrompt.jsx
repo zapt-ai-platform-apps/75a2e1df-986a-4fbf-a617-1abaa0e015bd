@@ -1,5 +1,6 @@
 import React from 'react';
 import Button from '../common/Button';
+import { FaEnvelope, FaTimes } from 'react-icons/fa';
 
 export default function DraftLetterPrompt({ onResponse }) {
   return (
@@ -8,29 +9,33 @@ export default function DraftLetterPrompt({ onResponse }) {
       
       <div className="mb-8 bg-blue-50 p-6 rounded-lg">
         <p className="text-gray-700 mb-4">
-          Would you like us to prepare a draft letter that you can send to the other party regarding the contract issues you've described?
+          Would you like us to prepare a draft formal letter that you can send to the other party regarding the contract issues you've described?
         </p>
         
         <p className="text-gray-700 mb-4">
-          This draft letter will outline the key issues, reference relevant contract clauses, and propose appropriate next steps.
+          This professional draft letter will outline the key contractual issues, reference relevant contract clauses, and propose appropriate next steps in accordance with the contract.
         </p>
         
         <p className="text-gray-700 font-medium">
-          You'll be able to review, edit, and export the letter before sending it.
+          You'll be able to review, edit, and export the letter before sending it to maintain full control over the communication.
         </p>
       </div>
       
       <div className="flex justify-center gap-4">
         <Button
           onClick={() => onResponse(true)}
-          className="bg-green-600 hover:bg-green-700"
+          size="md"
+          variant="success"
+          icon={<FaEnvelope />}
         >
           Yes, Create Draft Letter
         </Button>
         
         <Button 
           onClick={() => onResponse(false)}
-          className="bg-gray-600 hover:bg-gray-700"
+          size="md"
+          variant="secondary"
+          icon={<FaTimes />}
         >
           No, Just Show Report
         </Button>

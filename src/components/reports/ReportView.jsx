@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useReactToPrint } from 'react-to-print';
 import { useAppContext } from '../../contexts/AppContext';
 import Button from '../common/Button';
-import { FaFilePdf, FaFileCsv, FaPrint, FaCopy, FaFile, FaSave, FaList, FaPen } from 'react-icons/fa';
+import { FaFilePdf, FaFileCsv, FaPrint, FaCopy, FaFile, FaSave, FaList, FaPen, FaArrowLeft, FaEye, FaPaperPlane, FaRedo } from 'react-icons/fa';
 import DraftCommunication from './DraftCommunication';
 import SavedReportsList from './SavedReportsList';
 import { exportToPDF, exportToWord } from '../../utils/exportUtils';
@@ -322,46 +322,58 @@ export default function ReportView() {
           {displayReport === report && (
             <Button
               onClick={handleSaveReport}
-              className="bg-green-600 hover:bg-green-700"
+              size="sm"
+              variant="success"
               icon={<FaSave />}
+              title="Save Report"
             >
-              Save Report
+              Save
             </Button>
           )}
           
           <Button
             onClick={() => setShowSavedReports(true)}
-            className="bg-purple-600 hover:bg-purple-700"
+            size="sm"
+            variant="secondary"
             icon={<FaList />}
+            title="View Saved Reports"
           >
-            Saved Reports
+            Saved
           </Button>
           
           {!showDraft && selectedReport && (
             <Button
               onClick={() => setSelectedReport(null)}
-              className="bg-blue-600 hover:bg-blue-700"
+              size="sm"
+              variant="info"
+              icon={<FaEye />}
+              title="Show Current Report"
             >
-              Show Current Report
+              Current
             </Button>
           )}
           
           {!showDraft && (
             <Button
               onClick={handleCreateDraftLetter}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white"
+              size="sm"
+              variant="info"
               icon={<FaPen />}
+              title="Create or View Draft Letter"
             >
-              {draftCommunication ? "Show Draft Letter" : "Create Draft Letter"}
+              Letter
             </Button>
           )}
           
           {showDraft && (
             <Button
               onClick={() => setShowDraft(false)}
-              className="bg-blue-600 hover:bg-blue-700"
+              size="sm"
+              variant="info"
+              icon={<FaEye />}
+              title="Show Report"
             >
-              Show Report
+              Report
             </Button>
           )}
         </div>
@@ -372,43 +384,47 @@ export default function ReportView() {
           <div className="mb-6 flex flex-wrap gap-2">
             <Button
               onClick={handlePrintReport}
-              className="bg-gray-600 hover:bg-gray-700"
+              size="sm"
+              variant="secondary"
               icon={<FaPrint />}
-            >
-              Print
-            </Button>
+              title="Print Report"
+            />
             
             <Button
               onClick={handleExportReportToPDF}
-              className="bg-red-600 hover:bg-red-700"
+              size="sm"
+              variant="danger"
               icon={<FaFilePdf />}
-            >
-              Export PDF
-            </Button>
+              title="Export to PDF"
+            />
             
             <Button
               onClick={handleExportReportToWord}
-              className="bg-blue-600 hover:bg-blue-700"
+              size="sm"
+              variant="primary"
               icon={<FaFile />}
-            >
-              Export Word
-            </Button>
+              title="Export to Word"
+            />
             
             <Button
               onClick={handleCopyReportToClipboard}
-              className="bg-yellow-600 hover:bg-yellow-700"
+              size="sm"
+              variant="warning"
               icon={<FaCopy />}
-            >
-              Copy to Clipboard
-            </Button>
+              title="Copy to Clipboard"
+            />
             
             {selectedReport && (
               <Button
                 onClick={handleRegenerateReport}
                 disabled={isGenerating}
-                className="bg-green-600 hover:bg-green-700 ml-auto"
+                size="sm"
+                variant="success"
+                icon={<FaRedo />}
+                title="Generate New Report"
+                className="ml-auto"
               >
-                {isGenerating ? 'Generating...' : 'Generate New Report'}
+                {isGenerating ? 'Generating...' : 'New Report'}
               </Button>
             )}
           </div>
@@ -543,35 +559,35 @@ export default function ReportView() {
           <div className="mb-6 flex flex-wrap gap-2">
             <Button
               onClick={handlePrintDraft}
-              className="bg-gray-600 hover:bg-gray-700"
+              size="sm"
+              variant="secondary"
               icon={<FaPrint />}
-            >
-              Print
-            </Button>
+              title="Print Letter"
+            />
             
             <Button
               onClick={handleExportDraftToPDF}
-              className="bg-red-600 hover:bg-red-700"
+              size="sm"
+              variant="danger"
               icon={<FaFilePdf />}
-            >
-              Export PDF
-            </Button>
+              title="Export to PDF"
+            />
             
             <Button
               onClick={handleExportDraftToWord}
-              className="bg-blue-600 hover:bg-blue-700"
+              size="sm"
+              variant="primary"
               icon={<FaFile />}
-            >
-              Export Word
-            </Button>
+              title="Export to Word"
+            />
             
             <Button
               onClick={handleCopyDraftToClipboard}
-              className="bg-yellow-600 hover:bg-yellow-700"
+              size="sm"
+              variant="warning"
               icon={<FaCopy />}
-            >
-              Copy to Clipboard
-            </Button>
+              title="Copy to Clipboard"
+            />
           </div>
           
           <DraftCommunication 
@@ -584,17 +600,32 @@ export default function ReportView() {
       <div className="mt-6 flex justify-between">
         <Button
           onClick={() => navigate('/project')}
-          className="bg-gray-600 hover:bg-gray-700"
+          size="sm"
+          variant="secondary"
+          icon={<FaArrowLeft />}
         >
           Back to Project Details
         </Button>
 
-        <Button
-          onClick={handleCreateDraftLetter}
-          className="bg-blue-600 hover:bg-blue-700 text-white"
-        >
-          {showDraft ? "Refresh Draft Letter" : "Create Draft Letter"}
-        </Button>
+        {!showDraft ? (
+          <Button
+            onClick={handleCreateDraftLetter}
+            size="sm"
+            variant="primary"
+            icon={<FaPen />}
+          >
+            Create Draft Letter
+          </Button>
+        ) : (
+          <Button
+            onClick={handleCreateDraftLetter}
+            size="sm"
+            variant="primary"
+            icon={<FaRedo />}
+          >
+            Refresh Draft Letter
+          </Button>
+        )}
       </div>
     </div>
   );
