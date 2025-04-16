@@ -8,6 +8,7 @@ import Header from './components/common/Header';
 import Footer from './components/common/Footer';
 import { useAppContext } from './contexts/AppContext';
 import ZaptBadge from './components/common/ZaptBadge';
+import AuthRequired from './components/auth/AuthRequired';
 
 export default function App() {
   const { hasConsented } = useAppContext();
@@ -21,19 +22,31 @@ export default function App() {
           <Route 
             path="/project" 
             element={
-              hasConsented ? <ProjectDetailsForm /> : <Navigate to="/" replace />
+              hasConsented ? (
+                <AuthRequired>
+                  <ProjectDetailsForm />
+                </AuthRequired>
+              ) : <Navigate to="/" replace />
             } 
           />
           <Route 
             path="/report" 
             element={
-              hasConsented ? <ReportView /> : <Navigate to="/" replace />
+              hasConsented ? (
+                <AuthRequired>
+                  <ReportView />
+                </AuthRequired>
+              ) : <Navigate to="/" replace />
             } 
           />
           <Route 
             path="/settings" 
             element={
-              hasConsented ? <SettingsPage /> : <Navigate to="/" replace />
+              hasConsented ? (
+                <AuthRequired>
+                  <SettingsPage />
+                </AuthRequired>
+              ) : <Navigate to="/" replace />
             } 
           />
           <Route path="*" element={<Navigate to="/" replace />} />

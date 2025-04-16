@@ -1,10 +1,20 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAppContext } from '../../contexts/AppContext';
-import { FiSettings } from 'react-icons/fi';
+import { FiSettings, FiLogOut } from 'react-icons/fi';
+import useAuth from '@/hooks/useAuth';
 
 export default function Header() {
   const { hasConsented } = useAppContext();
+  const { user, signOut } = useAuth();
+  
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
   
   return (
     <header className="bg-blue-800 text-white shadow-md">
@@ -18,7 +28,7 @@ export default function Header() {
           <h1 className="text-xl font-bold">Contract Assistant</h1>
         </div>
         
-        {hasConsented && (
+        {hasConsented && user && (
           <nav>
             <ul className="flex space-x-4 text-sm items-center">
               <li>
@@ -44,6 +54,14 @@ export default function Header() {
                 >
                   <FiSettings className="mr-1" /> Settings
                 </Link>
+              </li>
+              <li>
+                <button
+                  onClick={handleSignOut}
+                  className="text-white hover:text-blue-200 transition-colors py-1 px-2 rounded hover:bg-blue-700 flex items-center cursor-pointer"
+                >
+                  <FiLogOut className="mr-1" /> Sign Out
+                </button>
               </li>
             </ul>
           </nav>

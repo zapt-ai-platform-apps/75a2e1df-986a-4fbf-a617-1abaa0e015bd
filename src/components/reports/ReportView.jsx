@@ -250,9 +250,14 @@ export default function ReportView() {
   };
   
   // Handle save current report
-  const handleSaveReport = () => {
-    saveCurrentReport();
-    alert('Report saved successfully');
+  const handleSaveReport = async () => {
+    try {
+      await saveCurrentReport();
+      alert('Report saved successfully');
+    } catch (error) {
+      console.error('Error saving report:', error);
+      alert('Failed to save report: ' + error.message);
+    }
   };
   
   // Handle load saved report
@@ -262,13 +267,18 @@ export default function ReportView() {
   };
   
   // Handle delete saved report
-  const handleDeleteReport = (reportId) => {
+  const handleDeleteReport = async (reportId) => {
     if (confirm('Are you sure you want to delete this saved report?')) {
-      deleteSavedReport(reportId);
-      
-      // If currently viewing the deleted report, switch to the current report
-      if (selectedReport && selectedReport.id === reportId) {
-        setSelectedReport(null);
+      try {
+        await deleteSavedReport(reportId);
+        
+        // If currently viewing the deleted report, switch to the current report
+        if (selectedReport && selectedReport.id === reportId) {
+          setSelectedReport(null);
+        }
+      } catch (error) {
+        console.error('Error deleting report:', error);
+        alert('Failed to delete report: ' + error.message);
       }
     }
   };

@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import * as Sentry from '@sentry/browser';
+import useAuth from '@/hooks/useAuth';
 
 const AppContext = createContext();
 
@@ -8,6 +9,8 @@ export function useAppContext() {
 }
 
 export function AppProvider({ children }) {
+  const { user, session } = useAuth();
+  
   // Consent state
   const [hasConsented, setHasConsented] = useState(false);
   
@@ -27,52 +30,18 @@ export function AppProvider({ children }) {
   const [isGeneratingReport, setIsGeneratingReport] = useState(false);
   const [isGeneratingLetter, setIsGeneratingLetter] = useState(false);
   
-  // API Key state
-  const [openaiApiKey, setOpenaiApiKey] = useState(() => {
-    try {
-      return localStorage.getItem('openaiApiKey') || '';
-    } catch (error) {
-      Sentry.captureException(error);
-      console.error('Error loading API key from localStorage:', error);
-      return '';
-    }
-  });
-  
-  // Save API key to localStorage whenever it changes
-  useEffect(() => {
-    try {
-      if (openaiApiKey) {
-        localStorage.setItem('openaiApiKey', openaiApiKey);
-      } else {
-        localStorage.removeItem('openaiApiKey');
-      }
-    } catch (error) {
-      Sentry.captureException(error);
-      console.error('Error saving API key to localStorage:', error);
-    }
-  }, [openaiApiKey]);
-  
   // Saved reports
-  const [savedReports, setSavedReports] = useState(() => {
-    try {
-      const saved = localStorage.getItem('savedReports');
-      return saved ? JSON.parse(saved) : [];
-    } catch (error) {
-      Sentry.captureException(error);
-      console.error('Error loading saved reports:', error);
-      return [];
-    }
-  });
-
-  // Save reports to localStorage whenever they change
+  const [savedReports, setSavedReports] = useState([]);
+  const [isFetchingSavedReports, setIsFetchingSavedReports] = useState(false);
+  
+  // Fetch saved reports when user is authenticated
   useEffect(() => {
-    try {
-      localStorage.setItem('savedReports', JSON.stringify(savedReports));
-    } catch (error) {
-      Sentry.captureException(error);
-      console.error('Error saving reports to localStorage:', error);
+    if (user && hasConsented) {
+      fetchSavedReports();
+    } else {
+      setSavedReports([]);
     }
-  }, [savedReports]);
+  }, [user, hasConsented]);
   
   // Provide consent management
   const giveConsent = () => setHasConsented(true);
@@ -111,8 +80,42 @@ export function AppProvider({ children }) {
     });
   };
   
+  // Fetch all saved reports
+  const fetchSavedReports = async () => {
+    if (!session) return;
+    
+    try {
+      setIsFetchingSavedReports(true);
+      
+      const response = await fetch('/api/getSavedReports', {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to fetch saved reports');
+      }
+
+      const reports = await response.json();
+      setSavedReports(reports);
+      
+    } catch (error) {
+      Sentry.captureException(error);
+      console.error('Error fetching saved reports:', error);
+    } finally {
+      setIsFetchingSavedReports(false);
+    }
+  };
+  
   // Generate report using GPT-4o
   const generateReport = async () => {
+    if (!session) {
+      throw new Error('You must be signed in to generate a report');
+    }
+    
     try {
       setIsGeneratingReport(true);
       console.log('Generating report for:', projectDetails);
@@ -121,10 +124,10 @@ export function AppProvider({ children }) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
         },
         body: JSON.stringify({ 
-          projectDetails,
-          apiKey: openaiApiKey
+          projectDetails
         }),
       });
 
@@ -150,6 +153,10 @@ export function AppProvider({ children }) {
   
   // Generate draft communication using GPT-4o
   const generateDraftCommunication = async (reportData) => {
+    if (!session) {
+      throw new Error('You must be signed in to generate a draft letter');
+    }
+    
     try {
       if (!reportData) {
         throw new Error('No report data available to generate draft letter');
@@ -162,10 +169,10 @@ export function AppProvider({ children }) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
         },
         body: JSON.stringify({ 
-          report: reportData,
-          apiKey: openaiApiKey 
+          report: reportData
         }),
       });
 
@@ -190,26 +197,67 @@ export function AppProvider({ children }) {
     }
   };
   
-  // Save current report
-  const saveCurrentReport = () => {
+  // Save current report to database
+  const saveCurrentReport = async () => {
+    if (!session) {
+      throw new Error('You must be signed in to save a report');
+    }
+    
     if (!report) return;
     
-    setSavedReports(prev => {
-      // Check if report with same ID already exists
-      const exists = prev.some(r => r.id === report.id);
-      if (exists) {
-        // Update existing report
-        return prev.map(r => r.id === report.id ? report : r);
-      } else {
-        // Add new report
-        return [...prev, report];
+    try {
+      const response = await fetch('/api/saveReport', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ report }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to save report');
       }
-    });
+
+      await fetchSavedReports();
+      return true;
+      
+    } catch (error) {
+      Sentry.captureException(error);
+      console.error('Error saving report:', error);
+      throw error;
+    }
   };
   
   // Delete a saved report
-  const deleteSavedReport = (reportId) => {
-    setSavedReports(prev => prev.filter(r => r.id !== reportId));
+  const deleteSavedReport = async (reportId) => {
+    if (!session) {
+      throw new Error('You must be signed in to delete a report');
+    }
+    
+    try {
+      const response = await fetch(`/api/deleteReport?reportId=${reportId}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to delete report');
+      }
+
+      // Update local state
+      setSavedReports(prev => prev.filter(r => r.id !== reportId));
+      return true;
+      
+    } catch (error) {
+      Sentry.captureException(error);
+      console.error('Error deleting report:', error);
+      throw error;
+    }
   };
   
   // Provide context value
@@ -223,18 +271,19 @@ export function AppProvider({ children }) {
     updateIssue,
     removeIssue,
     report,
+    setReport,
     generateReport,
     isGeneratingReport,
     draftCommunication,
     generateDraftCommunication,
     isGeneratingLetter,
     savedReports,
+    isFetchingSavedReports,
     saveCurrentReport,
     deleteSavedReport,
     shouldGenerateLetter,
     setShouldGenerateLetter,
-    openaiApiKey,
-    setOpenaiApiKey
+    openaiApiKey: undefined // We're using environment variable now
   };
   
   return (

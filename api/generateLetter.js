@@ -1,5 +1,6 @@
 import OpenAI from 'openai';
 import Sentry from './_sentry.js';
+import { authenticateUser } from './_apiUtils.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -7,18 +8,24 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { report, apiKey } = req.body;
+    // Authenticate user
+    const user = await authenticateUser(req);
+    if (!user) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const { report } = req.body;
     
     if (!report || !report.projectDetails || !report.analysis) {
       return res.status(400).json({ error: 'Missing report data' });
     }
 
-    // Use user-provided API key if available, otherwise use environment variable
-    const openaiApiKey = apiKey || process.env.OPENAI_API_KEY;
+    // Use environment variable API key
+    const openaiApiKey = process.env.OPENAI_API_KEY;
     
     if (!openaiApiKey) {
       return res.status(400).json({ 
-        error: 'OpenAI API key is required. Please provide your API key in the settings.' 
+        error: 'OpenAI API key is not configured. Please contact support.' 
       });
     }
 
@@ -61,12 +68,9 @@ export default async function handler(req, res) {
     console.error('Error generating draft letter:', error);
     Sentry.captureException(error);
     
-    // Check if the error is from OpenAI's API and return a more specific error message
-    if (error.name === 'AuthenticationError') {
-      return res.status(401).json({ 
-        error: 'Invalid OpenAI API key. Please check your API key in the settings.',
-        details: error.message 
-      });
+    // Check if the error is authentication related
+    if (error.message.includes('Authorization')) {
+      return res.status(401).json({ error: 'Unauthorized', details: error.message });
     }
     
     return res.status(500).json({ 

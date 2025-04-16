@@ -13,10 +13,8 @@ export default function ProjectDetailsForm() {
     addIssue, 
     updateIssue, 
     removeIssue, 
-    generateReport, 
-    setReport,
-    isGeneratingReport,
-    openaiApiKey
+    generateReport,
+    isGeneratingReport
   } = useAppContext();
   
   const [validationErrors, setValidationErrors] = useState({});
@@ -55,12 +53,6 @@ export default function ProjectDetailsForm() {
     
     if (Object.keys(errors).length > 0 || hasIssueErrors) {
       setValidationErrors({ ...errors, ...issueErrors });
-      return;
-    }
-    
-    // Check if API key is set
-    if (!openaiApiKey) {
-      setApiError('OpenAI API key is required. Please add your API key in the Settings page before generating a report.');
       return;
     }
     
@@ -239,17 +231,6 @@ export default function ProjectDetailsForm() {
           </Button>
         </div>
       </form>
-      
-      {!openaiApiKey && (
-        <div className="mt-6 p-4 bg-yellow-50 border-l-4 border-yellow-500 text-yellow-700">
-          <p className="font-medium">API Key Required</p>
-          <p className="mt-1">
-            You need to provide an OpenAI API key to generate reports. Please go to the 
-            <a href="/settings" className="text-blue-600 hover:text-blue-800 mx-1">Settings page</a>
-            to add your API key.
-          </p>
-        </div>
-      )}
     </div>
   );
 }
