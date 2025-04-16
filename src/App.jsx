@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import DisclaimerPage from './components/disclaimer/DisclaimerPage';
 import ProjectDetailsForm from './components/project/ProjectDetailsForm';
 import ReportView from './components/reports/ReportView';
+import SettingsPage from './components/settings/SettingsPage';
 import Header from './components/common/Header';
 import Footer from './components/common/Footer';
 import { useAppContext } from './contexts/AppContext';
@@ -27,6 +28,12 @@ export default function App() {
             path="/report" 
             element={
               hasConsented ? <ReportView /> : <Navigate to="/" replace />
+            } 
+          />
+          <Route 
+            path="/settings" 
+            element={
+              hasConsented ? <SettingsPage /> : <Navigate to="/" replace />
             } 
           />
           <Route path="*" element={<Navigate to="/" replace />} />

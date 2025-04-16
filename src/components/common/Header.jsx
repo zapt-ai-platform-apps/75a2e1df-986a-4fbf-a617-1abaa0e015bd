@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAppContext } from '../../contexts/AppContext';
+import { FiSettings } from 'react-icons/fi';
 
 export default function Header() {
   const { hasConsented } = useAppContext();
@@ -19,7 +20,7 @@ export default function Header() {
         
         {hasConsented && (
           <nav>
-            <ul className="flex space-x-4 text-sm">
+            <ul className="flex space-x-4 text-sm items-center">
               <li>
                 <Link 
                   to="/project" 
@@ -34,6 +35,14 @@ export default function Header() {
                   className="text-white hover:text-blue-200 transition-colors py-1 px-2 rounded hover:bg-blue-700"
                 >
                   Reports
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  to="/settings" 
+                  className="text-white hover:text-blue-200 transition-colors py-1 px-2 rounded hover:bg-blue-700 flex items-center"
+                >
+                  <FiSettings className="mr-1" /> Settings
                 </Link>
               </li>
             </ul>

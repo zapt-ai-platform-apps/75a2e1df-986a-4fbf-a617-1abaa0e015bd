@@ -7,16 +7,25 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { projectDetails } = req.body;
+    const { projectDetails, apiKey } = req.body;
     
     if (!projectDetails) {
       return res.status(400).json({ error: 'Missing project details' });
     }
 
+    // Use user-provided API key if available, otherwise use environment variable
+    const openaiApiKey = apiKey || process.env.OPENAI_API_KEY;
+    
+    if (!openaiApiKey) {
+      return res.status(400).json({ 
+        error: 'OpenAI API key is required. Please provide your API key in the settings.' 
+      });
+    }
+
     console.log('Generating report with GPT-4o for project:', projectDetails.projectName);
     
     const openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
+      apiKey: openaiApiKey,
     });
 
     // Create a structured input for GPT-4o
@@ -58,6 +67,15 @@ export default async function handler(req, res) {
   } catch (error) {
     console.error('Error generating report:', error);
     Sentry.captureException(error);
+    
+    // Check if the error is from OpenAI's API and return a more specific error message
+    if (error.name === 'AuthenticationError') {
+      return res.status(401).json({ 
+        error: 'Invalid OpenAI API key. Please check your API key in the settings.',
+        details: error.message 
+      });
+    }
+    
     return res.status(500).json({ 
       error: 'Failed to generate report', 
       details: error.message 

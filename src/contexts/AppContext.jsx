@@ -27,6 +27,31 @@ export function AppProvider({ children }) {
   const [isGeneratingReport, setIsGeneratingReport] = useState(false);
   const [isGeneratingLetter, setIsGeneratingLetter] = useState(false);
   
+  // API Key state
+  const [openaiApiKey, setOpenaiApiKey] = useState(() => {
+    try {
+      return localStorage.getItem('openaiApiKey') || '';
+    } catch (error) {
+      Sentry.captureException(error);
+      console.error('Error loading API key from localStorage:', error);
+      return '';
+    }
+  });
+  
+  // Save API key to localStorage whenever it changes
+  useEffect(() => {
+    try {
+      if (openaiApiKey) {
+        localStorage.setItem('openaiApiKey', openaiApiKey);
+      } else {
+        localStorage.removeItem('openaiApiKey');
+      }
+    } catch (error) {
+      Sentry.captureException(error);
+      console.error('Error saving API key to localStorage:', error);
+    }
+  }, [openaiApiKey]);
+  
   // Saved reports
   const [savedReports, setSavedReports] = useState(() => {
     try {
@@ -97,7 +122,10 @@ export function AppProvider({ children }) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ projectDetails }),
+        body: JSON.stringify({ 
+          projectDetails,
+          apiKey: openaiApiKey
+        }),
       });
 
       if (!response.ok) {
@@ -135,7 +163,10 @@ export function AppProvider({ children }) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ report: reportData }),
+        body: JSON.stringify({ 
+          report: reportData,
+          apiKey: openaiApiKey 
+        }),
       });
 
       if (!response.ok) {
@@ -201,7 +232,9 @@ export function AppProvider({ children }) {
     saveCurrentReport,
     deleteSavedReport,
     shouldGenerateLetter,
-    setShouldGenerateLetter
+    setShouldGenerateLetter,
+    openaiApiKey,
+    setOpenaiApiKey
   };
   
   return (
