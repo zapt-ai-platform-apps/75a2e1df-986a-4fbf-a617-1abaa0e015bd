@@ -30,7 +30,9 @@ export default async function handler(req, res) {
           role: "system",
           content: `You are a UK construction contract expert that drafts professional formal letters regarding contract disputes. 
           You draft clear, concise, and professional letters that follow proper UK business letter format and reference the appropriate contract clauses.
-          Your letters are factual, respectful, and focused on resolving issues through the appropriate contractual mechanisms.`
+          Your letters are factual, respectful, and focused on resolving issues through the appropriate contractual mechanisms.
+          The letter should be formatted correctly with appropriate sections including To, Subject, Greeting, Body, Closing, and Sender information.
+          Maintain a professional tone throughout the letter, avoiding overly aggressive language while being firm and clear about contract requirements.`
         },
         { role: "user", content: prompt }
       ],
@@ -159,6 +161,16 @@ function parseGptLetterResponse(responseText, report) {
     } else {
       closing = closingPhrase;
     }
+  } else if (closingPhrases.some(phrase => responseText.includes(phrase))) {
+    // Try to extract closing if we missed it in the first pass
+    for (const phrase of closingPhrases) {
+      if (responseText.includes(phrase)) {
+        closing = phrase;
+        break;
+      }
+    }
+  } else {
+    closing = "Yours faithfully,";
   }
   
   // Extract sender information (everything after closing)

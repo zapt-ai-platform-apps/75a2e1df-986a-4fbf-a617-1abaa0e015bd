@@ -29,7 +29,9 @@ export default async function handler(req, res) {
         {
           role: "system",
           content: `You are a UK construction contract expert assistant that analyzes construction contract issues and provides detailed professional analysis and recommendations. 
-          You provide detailed, well-organized reports that follow a consistent structure. Focus on being thorough and specific to the contract type and issue described.`
+          You provide detailed, well-organized reports that follow a consistent structure. Focus on being thorough and specific to the contract type and issue described.
+          Your reports are concise yet comprehensive, with practical recommendations that can be implemented.
+          For each issue, structure your response with clear section headings and well-organized content.`
         },
         { role: "user", content: prompt }
       ],
@@ -83,14 +85,14 @@ Actions Taken: ${issue.actionsTaken || 'None'}
 For each issue, please provide a thorough analysis with the following sections:
 1. Detailed Analysis: Specific analysis of the issue focusing on the relevant contract provisions
 2. Legal Context: Relevant legal framework, legislation, and case law applicable to this specific issue
-3. Relevant Contract Clauses: List of specific clauses from the contract type that apply to this issue
+3. Relevant Contract Clauses: List of specific clauses from the contract type that apply to this issue (provide actual clause numbers and names)
 4. Clause Explanations: Brief explanation of how each identified clause applies to this issue
 5. Recommendations: Specific, actionable recommendations to address the issue
 6. Potential Outcomes: Realistic assessment of possible outcomes
 7. Timeline Suggestions: Recommended timeline for addressing the issue
 8. Risk Assessment: Analysis of risks associated with the issue and different courses of action
 
-Please be specific, practical, and focused on UK construction contract law and practice.
+Please be specific, practical, and focused on UK construction contract law and practice. Format your response with clear section headings for each part of the analysis.
 `;
 }
 

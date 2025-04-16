@@ -1,25 +1,35 @@
 # Contract Assistant
 
-A specialized app designed to help parties involved in UK building contracts explore specific issues, including general queries regarding relevant clauses, disputes, or general concerns.
+A UK construction contract analysis tool that helps construction professionals analyze contracts, identify issues, and generate professional communications. The app uses GPT-4o to create detailed contract analyses and draft professional letters.
 
 ## Features
 
-- Comprehensive contract clause analysis
-- Contract issue exploration
-- Recommendation generation based on contract type and role
-- Professional draft communication generation
-- Save and manage multiple reports
-- Export options (PDF, Word, Print, Copy)
+- Create detailed project profiles with contract information
+- Add multiple contract issues for analysis
+- Generate comprehensive contract analysis reports
+- Create professional draft letters based on analysis
+- Save reports for future reference
+- Export reports and letters to PDF or Word
+- Print reports and letters directly
 
-## Technologies
+## Technical Details
 
-- React
-- Tailwind CSS
-- React Router
-- React Icons
-- HTML2Canvas & jsPDF for exports
-- File-Saver for downloads
+The app uses:
+- React for the frontend
+- Tailwind CSS for styling
+- OpenAI's GPT-4o model for AI-generated content
+- React Router for navigation
+- Sentry for error logging
+- HTML2Canvas and jsPDF for PDF export
 
-## Important Note
+## Setup and Installation
 
-This application is for informational and educational purposes only. It is not intended to constitute, nor should it be considered as, legal or contractual advice.
+1. Clone the repository
+2. Install dependencies: `npm install`
+3. Create a `.env` file with required environment variables
+4. Run in development mode: `npm run dev`
+5. Build for production: `npm run build`
+
+## Screenshots
+
+The app features a clean, professional interface for construction professionals to analyze contracts and generate communication.
