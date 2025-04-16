@@ -1,4 +1,4 @@
-export const contractTypes = [
+const contractTypes = [
   // JCT Contracts
   'JCT Standard Building Contract',
   'JCT Design and Build Contract',
@@ -60,3 +60,5 @@ export const contractTypes = [
   'Term Contract',
   'Other'
 ];
+
+export default contractTypes;
