@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../../contexts/AppContext';
 import Button from '../common/Button';
 import contractTypes from '../../data/contractTypes';
-import organizationRoles from '../../data/organizationRoles';
+import { organizationRoles } from '../../data/organizationRoles';
 import IssueForm from './IssueForm';
 
 export default function ProjectDetailsForm() {
